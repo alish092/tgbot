@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Статус компонентов проекта</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .ok { color: green; }
+    .fail { color: red; }
+    .check { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🩺 Статус компонентов LC BOT</h1>
+  <div class="check" id="backend">🔄 Backend (FastAPI)...</div>
+  <div class="check" id="frontend">🔄 Frontend (Admin panel)...</div>
+  <div class="check" id="bot">🔄 Бот...</div>
+
+  <script>
+    async function check(name, url, elemId) {
+      try {
+        const res = await fetch(url);
+        document.getElementById(elemId).innerHTML = `✅ ${name} <span class="ok">работает</span>`;
+      } catch {
+        document.getElementById(elemId).innerHTML = `❌ ${name} <span class="fail">не отвечает</span>`;
+      }
+    }
+
+    check("Backend (http://localhost:8000/docs)", "http://localhost:8000/docs", "backend");
+    check("Frontend (http://localhost:5173)", "http://localhost:5173", "frontend");
+    check("Бот (http://localhost:8000/stats)", "http://localhost:8000/stats", "bot"); // бот через API
+  </script>
+</body>
+</html>

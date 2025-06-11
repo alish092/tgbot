@@ -1,0 +1,709 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import SynonymManager from './SynonymManager';
+import PriorityManager from './PriorityManager';
+import UserManager from './UserManager';
+import StatsDashboard from './StatsDashboard';
+
+function AdminPanel() {
+  const [activeTab, setActiveTab] = useState('logs');
+  const [logs, setLogs] = useState([]);
+  const [totalLogs, setTotalLogs] = useState(0);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+  const [complaints, setComplaints] = useState([]);
+  const [overrides, setOverrides] = useState([]);
+  const [search, setSearch] = useState(''); // Fixed variable name from filter to search
+  const [synonyms, setSynonyms] = useState([]);
+  const [priorities, setPriorities] = useState([]);
+  const [newOverrideQuestion, setNewOverrideQuestion] = useState('');
+  const [newOverrideAnswer, setNewOverrideAnswer] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [editingOverride, setEditingOverride] = useState(null);
+  const [editQuestion, setEditQuestion] = useState('');
+  const [editAnswer, setEditAnswer] = useState('');
+  const [totalPages, setTotalPages] = useState(0);
+
+  // Function to add an override
+  const addOverride = async () => {
+    if (!newOverrideQuestion.trim() || !newOverrideAnswer.trim()) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      await axios.post("http://localhost:8000/overrides", null, {
+        params: {
+          question: newOverrideQuestion,
+          answer: newOverrideAnswer
+        }
+      });
+      // Clear fields after successful addition
+      setNewOverrideQuestion('');
+      setNewOverrideAnswer('');
+      fetchOverrides();
+    } catch (e) {
+      console.error("Error adding override:", e);
+      setError("Failed to add manual response");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to delete an override
+  const deleteOverride = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8000/overrides/${id}`);
+      fetchOverrides();
+    } catch (e) {
+      console.error("Error deleting override:", e);
+      setError("Failed to delete manual response");
+    }
+  };
+
+  const startEditOverride = (override) => {
+    setEditingOverride(override);
+    setEditQuestion(override.question);
+    setEditAnswer(override.answer);
+  };
+
+  // Create override from complaint
+  const createOverrideFromComplaint = (c) => {
+    setNewOverrideQuestion(c.question);
+    setNewOverrideAnswer(c.answer || "");
+    setActiveTab("overrides");
+  };
+
+  const saveEditedOverride = async () => {
+    try {
+      await axios.put(`http://localhost:8000/overrides/${editingOverride.id}`, null, {
+        params: {
+          question: editQuestion,
+          answer: editAnswer,
+        }
+      });
+      setEditingOverride(null);
+      fetchOverrides();
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      setError('Failed to save changes');
+    }
+  };
+
+  const fetchLogs = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get('http://localhost:8000/logs', {
+        params: { page, limit, search }
+      });
+      setLogs(res.data.items);
+      setTotalLogs(res.data.total);
+      setTotalPages(res.data.pages);
+    } catch (error) {
+      console.error('Error loading logs:', error);
+      setError('Error loading logs');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchComplaints = async () => {
+    try {
+      const res = await axios.get('http://localhost:8000/complaints');
+      setComplaints(res.data);
+    } catch (error) {
+      console.error('Error loading complaints:', error);
+      setError('Error loading complaints');
+    }
+  };
+
+  const fetchOverrides = async () => {
+    try {
+      const res = await axios.get('http://localhost:8000/overrides');
+      setOverrides(res.data);
+    } catch (error) {
+      console.error('Error loading overrides:', error);
+      setError('Error loading overrides');
+    }
+  };
+
+  const fetchSynonyms = async () => {
+    try {
+      const res = await axios.get('http://localhost:8000/synonyms_from_db');
+      setSynonyms(res.data);
+    } catch (error) {
+      console.error('Error loading synonyms:', error);
+      setError('Error loading synonyms');
+    }
+  };
+
+  const fetchPriorities = async () => {
+    try {
+      const res = await axios.get('http://localhost:8000/priorities');
+      setPriorities(res.data);
+    } catch (error) {
+      console.error('Error loading priorities:', error);
+      setError('Error loading priorities');
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    fetchLogs();
+  };
+
+  const exportData = (format) => {
+    // Create link to API for export
+    const exportUrl = `http://localhost:8000/logs/export?format=${format}&search=${search}`;
+
+    // Create temporary link and simulate click to download
+    const link = document.createElement('a');
+    link.href = exportUrl;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        setLoading(true);
+        await fetchLogs();
+        await fetchComplaints();
+        await fetchOverrides();
+        await fetchSynonyms();
+        await fetchPriorities();
+      } catch (error) {
+        console.error("Error getting data:", error);
+        setError("Failed to load data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
+  }, [page, limit, search]); // Added dependencies
+
+  useEffect(() => {
+    if (activeTab === 'complaints') {
+      fetchComplaints();
+    } else if (activeTab === 'logs') {
+      fetchLogs();
+    } else if (activeTab === 'overrides') {
+      fetchOverrides();
+    } else if (activeTab === 'synonyms') {
+      fetchSynonyms();
+    } else if (activeTab === 'priorities') {
+      fetchPriorities();
+    }
+  }, [activeTab]);
+
+  // Pagination component
+  const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+    const pages = [];
+
+    // Add first page
+    pages.push(
+      <button
+        key={1}
+        onClick={() => onPageChange(1)}
+        style={{
+          padding: '5px 10px',
+          margin: '0 3px',
+          backgroundColor: currentPage === 1 ? '#2196F3' : '#e0e0e0',
+          color: currentPage === 1 ? 'white' : 'black',
+          border: 'none',
+          cursor: 'pointer'
+        }}
+      >
+        1
+      </button>
+    );
+
+    // Add ellipsis if needed
+    if (currentPage > 3) {
+      pages.push(<span key="ellipsis1">...</span>);
+    }
+
+    // Add pages around current page
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => onPageChange(i)}
+          style={{
+            padding: '5px 10px',
+            margin: '0 3px',
+            backgroundColor: currentPage === i ? '#2196F3' : '#e0e0e0',
+            color: currentPage === i ? 'white' : 'black',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Add ellipsis if needed
+    if (currentPage < totalPages - 2) {
+      pages.push(<span key="ellipsis2">...</span>);
+    }
+
+    // Add last page if needed
+    if (totalPages > 1) {
+      pages.push(
+        <button
+          key={totalPages}
+          onClick={() => onPageChange(totalPages)}
+          style={{
+            padding: '5px 10px',
+            margin: '0 3px',
+            backgroundColor: currentPage === totalPages ? '#2196F3' : '#e0e0e0',
+            color: currentPage === totalPages ? 'white' : 'black',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    return (
+      <div style={{margin: '20px 0', textAlign: 'center'}}>
+        <button
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1}
+          style={{
+            padding: '5px 10px',
+            margin: '0 3px',
+            backgroundColor: '#e0e0e0',
+            border: 'none',
+            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+            opacity: currentPage === 1 ? 0.5 : 1
+          }}
+        >
+          &lt; Prev
+        </button>
+
+        {pages}
+
+        <button
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages}
+          style={{
+            padding: '5px 10px',
+            margin: '0 3px',
+            backgroundColor: '#e0e0e0',
+            border: 'none',
+            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+            opacity: currentPage === totalPages ? 0.5 : 1
+          }}
+        >
+          Next &gt;
+        </button>
+      </div>
+    );
+  };
+
+  const renderLogs = () => {
+    if (!logs || !Array.isArray(logs)) {
+      return <p>No data to display</p>;
+    }
+
+    return (
+      <div>
+        <h2>📄 Logs</h2>
+
+        <div style={{ marginBottom: '20px' }}>
+          <input
+            type="text"
+            placeholder="Search in questions or answers"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ padding: '8px', width: '300px', marginRight: '10px' }}
+          />
+          <button
+            onClick={() => fetchLogs()}
+            style={{ padding: '8px 15px', backgroundColor: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}
+          >
+            Search
+          </button>
+          <div style={{ marginTop: '10px' }}>
+            <button
+              onClick={() => exportData('csv')}
+              style={{ padding: '5px 10px', marginRight: '10px', backgroundColor: '#2196F3', color: 'white', border: 'none', cursor: 'pointer' }}
+            >
+              Export CSV
+            </button>
+            <button
+              onClick={() => exportData('json')}
+              style={{ padding: '5px 10px', backgroundColor: '#2196F3', color: 'white', border: 'none', cursor: 'pointer' }}
+            >
+              Export JSON
+            </button>
+          </div>
+        </div>
+
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <>
+            <table style={{width: '100%', borderCollapse: 'collapse', marginTop: '10px'}}>
+              <thead>
+                <tr style={{backgroundColor: '#f2f2f2'}}>
+                  <th style={{padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd'}}>ID</th>
+                  <th style={{padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd'}}>Username</th>
+                  <th style={{padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd'}}>Question</th>
+                  <th style={{padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd'}}>Answer</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logs.length > 0 ? (
+                  logs.map((log) => (
+                    <tr key={log.id} style={{borderBottom: '1px solid #ddd'}}>
+                      <td style={{padding: '8px'}}>{log.id}</td>
+                      <td style={{padding: '8px'}}>{log.username}</td>
+                      <td style={{padding: '8px'}}>{log.question}</td>
+                      <td style={{padding: '8px'}}>{log.answer}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" style={{textAlign: 'center', padding: '15px'}}>
+                      No data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
+
+  const renderComplaints = () => (
+    <div>
+      <h2>🚫 Complaints</h2>
+      {complaints.length === 0 ? (
+        <p>No complaints available</p>
+      ) : (
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#f2f2f2' }}>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>ID</th>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Question</th>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Answer</th>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {overrides.map((o) => (
+              <tr key={o.id} style={{ borderBottom: '1px solid #ddd' }}>
+                <td style={{ padding: '8px' }}>{o.id}</td>
+                <td style={{ padding: '8px' }}>{o.question}</td>
+                <td style={{ padding: '8px' }}>{o.answer}</td>
+                <td style={{ padding: '8px' }}>
+                  <button
+                    onClick={() => startEditOverride(o)}
+                    style={{ marginRight: '10px', padding: '5px 10px', backgroundColor: '#2196F3', color: 'white', border: 'none', cursor: 'pointer' }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => deleteOverride(o.id)}
+                    style={{ padding: '5px 10px', backgroundColor: '#f44336', color: 'white', border: 'none', cursor: 'pointer' }}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+
+  const renderSynonymsTraining = () => (
+    <div>
+      <h2>🔁 Synonyms</h2>
+      {synonyms.length === 0 ? (
+        <p>No synonyms available</p>
+      ) : (
+        <ul>
+          {Object.entries(
+            synonyms.reduce((acc, { keyword, synonym }) => {
+              acc[keyword] = [...(acc[keyword] || []), synonym];
+              return acc;
+            }, {})
+          ).map(([keyword, syns]) => (
+            <li key={keyword}>
+              <b>{keyword}</b>: {syns.join(', ')}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <h2>📌 Priority Documents</h2>
+      {priorities.length === 0 ? (
+        <p>No priority documents available</p>
+      ) : (
+        <ul>
+          {priorities.map((p) => (
+            <li key={p.id}>
+              <b>{p.keyword}</b>: {p.document_name}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+
+  return (
+    <div style={{ paddingTop: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <h1>⚙️ Admin Panel</h1>
+      <div style={{ marginBottom: '20px' }}>
+        <button
+          onClick={() => setActiveTab('logs')}
+          style={{
+            padding: '8px 15px',
+            backgroundColor: activeTab === 'logs' ? '#2196F3' : '#e0e0e0',
+            color: activeTab === 'logs' ? 'white' : 'black',
+            border: 'none',
+            margin: '0 5px 5px 0',
+            cursor: 'pointer'
+          }}
+        >
+          📄 Logs
+        </button>
+        <button
+          onClick={() => setActiveTab('complaints')}
+          style={{
+            padding: '8px 15px',
+            backgroundColor: activeTab === 'complaints' ? '#2196F3' : '#e0e0e0',
+            color: activeTab === 'complaints' ? 'white' : 'black',
+            border: 'none',
+            margin: '0 5px 5px 0',
+            cursor: 'pointer'
+          }}
+        >
+          🚫 Complaints
+        </button>
+        <button
+          onClick={() => setActiveTab('overrides')}
+          style={{
+            padding: '8px 15px',
+            backgroundColor: activeTab === 'overrides' ? '#2196F3' : '#e0e0e0',
+            color: activeTab === 'overrides' ? 'white' : 'black',
+            border: 'none',
+            margin: '0 5px 5px 0',
+            cursor: 'pointer'
+          }}
+        >
+          ✍️ Manual Responses
+        </button>
+        <button
+          onClick={() => setActiveTab('synonyms')}
+          style={{
+            padding: '8px 15px',
+            backgroundColor: activeTab === 'synonyms' ? '#2196F3' : '#e0e0e0',
+            color: activeTab === 'synonyms' ? 'white' : 'black',
+            border: 'none',
+            margin: '0 5px 5px 0',
+            cursor: 'pointer'
+          }}
+        >
+          Synonyms
+        </button>
+        <button
+          onClick={() => setActiveTab('priorities')}
+          style={{
+            padding: '8px 15px',
+            backgroundColor: activeTab === 'priorities' ? '#2196F3' : '#e0e0e0',
+            color: activeTab === 'priorities' ? 'white' : 'black',
+            border: 'none',
+            margin: '0 5px 5px 0',
+            cursor: 'pointer'
+          }}
+        >
+          Priorities
+        </button>
+        <button
+          onClick={() => setActiveTab('training')}
+          style={{
+            padding: '8px 15px',
+            backgroundColor: activeTab === 'training' ? '#2196F3' : '#e0e0e0',
+            color: activeTab === 'training' ? 'white' : 'black',
+            border: 'none',
+            margin: '0 5px 5px 0',
+            cursor: 'pointer'
+          }}
+        >
+          📚 Training
+        </button>
+        <button
+          onClick={() => setActiveTab('users')}
+          style={{
+            padding: '8px 15px',
+            backgroundColor: activeTab === 'users' ? '#2196F3' : '#e0e0e0',
+            color: activeTab === 'users' ? 'white' : 'black',
+            border: 'none',
+            margin: '0 5px 5px 0',
+            cursor: 'pointer'
+          }}
+        >
+          👤 Users
+        </button>
+        <button
+          onClick={() => setActiveTab('stats')}
+          style={{
+            padding: '8px 15px',
+            backgroundColor: activeTab === 'stats' ? '#2196F3' : '#e0e0e0',
+            color: activeTab === 'stats' ? 'white' : 'black',
+            border: 'none',
+            margin: '0 5px 5px 0',
+            cursor: 'pointer'
+          }}
+        >
+          📊 Statistics
+        </button>
+      </div>
+
+      {activeTab === 'logs' && renderLogs()}
+      {activeTab === 'complaints' && renderComplaints()}
+      {activeTab === 'overrides' && renderOverrides()}
+      {activeTab === 'synonyms' && <SynonymManager />}
+      {activeTab === 'stats' && <StatsDashboard />}
+      {activeTab === 'priorities' && <PriorityManager />}
+      {activeTab === 'training' && renderSynonymsTraining()}
+      {activeTab === 'users' && <UserManager />}
+    </div>
+  );
+}
+
+export default AdminPanel; 'left', borderBottom: '1px solid #ddd' }}>Question</th>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Username</th>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Answer</th>
+              <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {complaints.map((c) => (
+              <tr key={c.id} style={{ borderBottom: '1px solid #ddd' }}>
+                <td style={{ padding: '8px' }}>{c.question}</td>
+                <td style={{ padding: '8px' }}>{c.username}</td>
+                <td style={{ padding: '8px' }}>{c.answer}</td>
+                <td style={{ padding: '8px' }}>
+                  <button
+                    onClick={() => createOverrideFromComplaint(c)}
+                    style={{ padding: '5px 10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}
+                  >
+                    Create Override
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+
+  const renderOverrides = () => (
+    <div>
+      <h2>✍️ Manual Responses</h2>
+
+      {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+
+      {/* Add new response block */}
+      <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
+        <h3>Add new manual response</h3>
+        <div style={{ marginBottom: '10px' }}>
+          <input
+            type="text"
+            placeholder="Question"
+            value={newOverrideQuestion}
+            onChange={(e) => setNewOverrideQuestion(e.target.value)}
+            style={{ width: '100%', padding: '8px', marginBottom: '5px' }}
+          />
+        </div>
+        <div style={{ marginBottom: '10px' }}>
+          <textarea
+            placeholder="Answer"
+            value={newOverrideAnswer}
+            onChange={(e) => setNewOverrideAnswer(e.target.value)}
+            style={{ width: '100%', padding: '8px', height: '100px' }}
+          />
+        </div>
+        <button
+          onClick={addOverride}
+          disabled={loading || !newOverrideQuestion.trim() || !newOverrideAnswer.trim()}
+          style={{
+            padding: '8px 15px',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            border: 'none',
+            cursor: loading || !newOverrideQuestion.trim() || !newOverrideAnswer.trim() ? 'not-allowed' : 'pointer',
+            opacity: loading || !newOverrideQuestion.trim() || !newOverrideAnswer.trim() ? 0.7 : 1
+          }}
+        >
+          {loading ? 'Adding...' : 'Add manual response'}
+        </button>
+      </div>
+
+      {/* Edit response block */}
+      {editingOverride && (
+        <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#e8f0fe', borderRadius: '5px' }}>
+          <h3>Edit manual response</h3>
+          <div style={{ marginBottom: '10px' }}>
+            <input
+              type="text"
+              placeholder="Question"
+              value={editQuestion}
+              onChange={(e) => setEditQuestion(e.target.value)}
+              style={{ width: '100%', padding: '8px', marginBottom: '5px' }}
+            />
+          </div>
+          <div style={{ marginBottom: '10px' }}>
+            <textarea
+              placeholder="Answer"
+              value={editAnswer}
+              onChange={(e) => setEditAnswer(e.target.value)}
+              style={{ width: '100%', padding: '8px', height: '100px' }}
+            />
+          </div>
+          <button
+            onClick={saveEditedOverride}
+            style={{ padding: '8px 15px', backgroundColor: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer', marginRight: '10px' }}
+          >
+            Save
+          </button>
+          <button
+            onClick={() => setEditingOverride(null)}
+            style={{ padding: '8px 15px', backgroundColor: '#f44336', color: 'white', border: 'none', cursor: 'pointer' }}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
+      {/* Manual responses table */}
+      {overrides.length === 0 ? (
+        <p>No manual responses available</p>
+      ) : (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#f2f2f2' }}>
+              <th style={{ padding: '8px', textAlign:

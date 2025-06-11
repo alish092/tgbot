@@ -1,0 +1,175 @@
+﻿.idea
+admin-panel
+ARCHIVE
+backend
+bot
+cache
+docs
+kp_folder
+kp_mount
+ollama
+pgdata
+shared
+venv
+__pycache__
+.dockerignore
+.env
+.gitignore
+botstructure.txt
+bot_data.db
+cp_api.py
+docker-compose.yml
+Dockerfile
+file_bridge.py
+health-check.html
+kp_folder.lnk
+law_keywords.json
+parse_documents.py
+PCAstaffBot.txt
+requirements.txt
+structure.txt
+temporary_script.py
+tg_bot.py
+tg_bot_final.py
+token.txt
+vectorize_chunks.py
+.idea\inspectionProfiles
+.idea\.gitignore
+.idea\checkstyle-idea.xml
+.idea\LC BOT.iml
+.idea\misc.xml
+.idea\modules.xml
+.idea\workspace.xml
+admin-panel\node_modules
+admin-panel\public
+admin-panel\src
+admin-panel\.gitignore
+admin-panel\Dockerfile
+admin-panel\eslint.config.js
+admin-panel\index.html
+admin-panel\package-lock.json
+admin-panel\package.json
+admin-panel\README.md
+admin-panel\vite.config.js
+ARCHIVE\.idea
+ARCHIVE\admin
+ARCHIVE\faiss_index
+ARCHIVE\__pycache__
+ARCHIVE\ask_bot_bestmatch_final.py
+ARCHIVE\WhatsApp Image 2025-05-02 at 11.03.06 AM.jpeg
+ARCHIVE\мади жалоба.jpeg
+backend\db-init
+backend\__pycache__
+backend\db.sqlite3
+backend\Dockerfile
+backend\main.py
+backend\models.py
+backend\requirements.txt
+bot\shared
+docs\07 Политика конфиденциального информирования о нарушениях.docx
+docs\718 vs M3, M4.docx
+docs\911 vs M5, MB GT.docx
+docs\Cayenne vs Q8, Q7, RR LR, RR Sport.docx
+docs\Cayenne vs X5, X6, X7, GLE, GLS.docx
+docs\Macan BEV vs Zeekr 001, Avatr 11, Q8 E-Tron, Xi, XM, Model X.docx
+docs\Macan vs GLC, X4, Velar, F-Pace, Q5.docx
+docs\Panamera vs BMW 7, S-Class, A8, A7, BMW 8.docx
+docs\Porsche 718.docx
+docs\Porsche 911.docx
+docs\Porsche Cayenne.docx
+docs\Porsche Macan BEV.docx
+docs\Porsche Macan.docx
+docs\Porsche Panamera.docx
+docs\Porsche Taycan.docx
+docs\Porsche Инструкция по работе системой Автодилер администратор.docx
+docs\Porsche Инструкция по работе системой Автодилер менеджер отдела продаж.docx
+docs\Porsche Инструкция по работе системой Автодилер роп.docx
+docs\rules.docx
+docs\Taycan vs Zeekr 001, Xiaomi SU7, Tesla Model S, AMG EQS, E-tron GT.docx
+docs\ДИ HR 2025.docx
+docs\ДИ Porsche Host HR.docx
+docs\ДИ Администратор торгового зала правильный.docx
+docs\ДИ-01-02 Логист.docx
+docs\ДИ-01-03 Бухгалтер  по работе с покупателями и заказчиками.docx
+docs\ДИ-01-04 Кассир.docx
+docs\ДИ-01-06 Руководитель по маркетингу и клиентским отношениям.docx
+docs\ДИ-01-07 Гл. бухгалтер новый.docx
+docs\ДИ-01-07 Гл. бухгалтер.docx
+docs\ДИ-01-08 Руководитель отдела продаж новых автомобилей и автомобилей с пробегом.docx
+docs\ДИ-01-09 Специалист по продажам новых автомобилей.docx
+docs\ДИ-01-10 Специалист по продажам автомобилей с пробегом.docx
+docs\ДИ-01-11 Руководитель отдела сервисного обслуживания НОВЫЙ.docx
+docs\ДИ-01-12 Заведующий складом.docx
+docs\ДИ-01-13 Дворник.docx
+docs\ДИ-01-14 Начальник отдела внутреннего контроля.docx
+docs\ДИ-01-15 Специалиста отдела внутреннего контроля.docx
+docs\ДИ-01-16 Уборщик помещений_.docx
+docs\ДИ-01-17 Начальник административно-хозяйственного отдела.docx
+docs\ДИ-01-18 Мастер цеха.docx
+docs\ДИ-01-20 Мойщик.docx
+docs\ДИ-01-21 Сервисный консультант НОВЫЙ.docx
+docs\ДИ-01-22 Специалист по продаже запасных частей.docx
+docs\ДИ-01-23 инженер по гарантии.docx
+docs\ДОРОЖНАЯ КАРТА ОБУЧЕНИЯ НА ПОЗИЦИЮ «Менеджер по продажам» .docx
+docs\инструкция автомеханика.docx
+docs\инструкция для гл инженера.docx
+docs\инструкция для директора.docx
+docs\инструкция по охр труда и тб.docx
+docs\инструкция спец одежда.docx
+docs\Кодекс Деловой Этики Orbis Auto.docx
+docs\конфликт интересов.docx
+docs\политика в отношении подарков и проявлении гостеприимства.docx
+docs\политика конфиденциального информирования.docx
+docs\политика по противодействию легализации.docx
+docs\положение документооборот.docx
+docs\положение о подборе персонала.docx
+docs\положение о порядке выноса материальных ценностей.docx
+docs\положение о порядке подбора и найма персонала.docx
+docs\ПОЛОЖЕНИЕ О ПОРЯДКЕ РЕАЛИЗАЦИИ НОВЫХ АВТОМОБИЛЕЙ СОТРУДНИКАМ.docx
+docs\положение о правилах проведения различного рода розыгрышей.docx
+docs\положение по охране труда.docx
+docs\положение санкции.docx
+docs\положение согласительная комиссия.docx
+docs\порядок реализации новых авто и с пробегом для сотрудников НОВЫЙ.docx
+docs\приказ о доступе к автомобилям.docx
+docs\приказ о несоблюдении правил.docx
+docs\Процедура идентификации клиентов и деловых партнеров.docx
+docs\процедура проведения надлежащей проверки клиентов.docx
+docs\Регламент по хищению.docx
+docs\трудовой договор.docx
+docs\Чек-лист для Porsche Host.docx
+ollama\models
+ollama\id_ed25519
+ollama\id_ed25519.pub
+pgdata\base
+pgdata\global
+pgdata\pg_commit_ts
+pgdata\pg_dynshmem
+pgdata\pg_logical
+pgdata\pg_multixact
+pgdata\pg_notify
+pgdata\pg_replslot
+pgdata\pg_serial
+pgdata\pg_snapshots
+pgdata\pg_stat
+pgdata\pg_stat_tmp
+pgdata\pg_subtrans
+pgdata\pg_tblspc
+pgdata\pg_twophase
+pgdata\pg_wal
+pgdata\pg_xact
+pgdata\pg_hba.conf
+pgdata\pg_ident.conf
+pgdata\PG_VERSION
+pgdata\postgresql.auto.conf
+pgdata\postgresql.conf
+pgdata\postmaster.opts
+pgdata\postmaster.pid
+venv\Include
+venv\Lib
+venv\Scripts
+venv\share
+venv\pyvenv.cfg
+__pycache__\file_bridge.cpython-310.pyc
+__pycache__\parse_documents.cpython-310.pyc
+__pycache__\parse_documents.cpython-311.pyc

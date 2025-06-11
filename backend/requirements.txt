@@ -1,0 +1,21 @@
+# --- Core backend stack ---
+fastapi
+uvicorn[standard]
+tortoise-orm
+asyncpg
+python-dotenv
+
+# --- Network, Files, Utils ---
+httpx
+aiohttp
+docx2txt
+tiktoken
+watchdog
+tqdm
+
+# --- GPT-интеграция и Telegram-бот ---
+openai
+langchain
+langchain-openai
+langchain-community
+python-telegram-bot==20.7

@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pkl
+*.db
+.idea/
+.venv/
+venv/
+pgdata/
+faiss_index/
+cache/
+.git/
+*.log
+*.bak
+*.zip

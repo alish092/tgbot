@@ -1,0 +1,26 @@
+fastapi
+uvicorn
+tortoise-orm
+aiohttp
+httpx
+python-dotenv
+docx2txt
+tiktoken
+openai
+langchain
+langchain-openai
+langchain-community
+python-telegram-bot==20.7
+watchdog
+pymorphy2
+tqdm
+# --- Только для кластеризации, GPT и ML ---
+sentence-transformers==2.2.2
+torch==2.0.1+cpu
+scikit-learn
+numpy
+
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+
+--extra-index-url https://download.pytorch.org/whl/cpu

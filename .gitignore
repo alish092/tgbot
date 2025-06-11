@@ -1,0 +1,24 @@
+.env
+__pycache__/
+venv/
+build/
+dist/
+
+# IDE
+.idea/
+
+# Сборки фронта
+admin-panel/node_modules/
+
+# Модели машинного обучения
+*.gguf
+*.bin
+*.safetensors
+checkpoints_*
+
+# Или конкретно этот файл
+checkpoints_llama8b_031224_18900-Q4_K_M.gguf
+
+# Папка с моделями
+ollama/
+docs/
