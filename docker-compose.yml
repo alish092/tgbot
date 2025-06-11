@@ -44,11 +44,11 @@ services:
     build:
       context: .
     volumes:
-      - ./tg_bot_final.py:/app/tg_bot_final.py  # Монтируем файл бота
+      - ./tg_bot_final.py:/app/tg_bot_final.py  
       - ./law_keywords.json:/app/law_keywords.json
       - ./docs:/app/docs
-      - ./parse_documents.py:/app/parse_documents.py  # Если есть
-      - //srv-2/обмен:/app/shared  # Ваша папка shared
+      - ./parse_documents.py:/app/parse_documents.py  
+      - //srv-2/обмен:/app/shared  
     environment:
       BACKEND_URL: http://backend:8000
       TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
