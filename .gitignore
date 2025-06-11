@@ -16,14 +16,12 @@ admin-panel/node_modules/
 *.safetensors
 checkpoints_*
 
-# Или конкретно этот файл
 checkpoints_llama8b_031224_18900-Q4_K_M.gguf
 
 # Папка с моделями
 ollama/
 docs/
-token.txt  
-PCAstaffBot.txt  
+
 # Токены и ключи
 token.txt
 PCAstaffBot.txt
@@ -35,5 +33,6 @@ PCAstaffBot.txt
 *api*key*
 *token*
 *secret*
-EOF 
+EOF
+ 
  
